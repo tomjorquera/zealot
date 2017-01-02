@@ -23,7 +23,6 @@ zealot = Experiment('Zealot', ingredients=[env])
 @zealot.config
 def zealot_config():
     exp_folder = None
-    step_prefix = ''
 
 def save_artifacts(zealot, base_path):
     for artifact in os.listdir(base_path):
@@ -31,7 +30,7 @@ def save_artifacts(zealot, base_path):
         if os.path.isfile(path):
             zealot.add_artifact(path)
         else:
-            save_artifacts(path)
+            save_artifacts(zealot, path)
 
 @zealot.capture()
 def setup_env(env, exp_folder):
@@ -43,7 +42,7 @@ def setup_env(env, exp_folder):
         return setup_env_basic()
 
 @zealot.automain
-def main(env, _log, exp_folder, step_prefix):
+def main(env, _log, exp_folder):
 
     if exp_folder is None:
         raise ValueError('you must provide a path for the experiment using the "exp_folder" parameter')
@@ -57,8 +56,7 @@ def main(env, _log, exp_folder, step_prefix):
 
     # get all steps and run them in order
     # TODO allow to optionally store steps as resources
-    steps = [file for file in os.listdir(os.getcwd()) if file.startswith(step_prefix)]
-    for step in sorted(steps):
+    for step in [line.rstrip('\n') for line in open('steps.txt')]:
         _log.info('running step %s', step)
         running_env.run(step)
 
