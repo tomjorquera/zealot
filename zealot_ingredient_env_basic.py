@@ -18,10 +18,11 @@ class Env:
         subprocess.run([os.path.join(os.getcwd(), command)], env=self.env_vars)
 
     @env.capture
-    def close(self, tmp):
+    def close(self, out, tmp):
         # TODO allow to preserve tmp
-        # TODO allow to remove out
+        # TODO allow to preserve out
         shutil.rmtree(tmp)
+        shutil.rmtree(out)
 
 def setup_env_basic():
     return Env()

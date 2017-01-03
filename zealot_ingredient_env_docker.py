@@ -10,7 +10,6 @@ class DockerEnv:
     # return an env object that allow to run commands
     @env.capture
     def __init__(self,
-                 exp_folder,
                  docker_image,
                  out,
                  tmp,
@@ -21,26 +20,25 @@ class DockerEnv:
         os.makedirs(tmp)
 
         self.client = docker.from_env()
-        self.exp_path = os.path.join(container_base_path, exp_folder)
 
         volumes = {
             os.path.abspath(os.getcwd()): {
-                'bind': self.exp_path,
+                'bind': container_base_path,
                 'mode': 'ro'
             },
             os.path.abspath(tmp): {
-                'bind': os.path.join(self.exp_path, tmp),
+                'bind': os.path.join(container_base_path, tmp),
                 'mode': 'rw'
             },
             os.path.abspath(out): {
-                'bind': os.path.join(self.exp_path, out),
+                'bind': os.path.join(container_base_path, out),
                 'mode': 'rw'
             }
         }
         env = {
-            'PWD': self.exp_path,
-            'ZEALOT_OUT': os.path.join(self.exp_path, out),
-            'ZEALOT_TMP': os.path.join(self.exp_path, tmp)
+            'PWD': container_base_path,
+            'ZEALOT_OUT': os.path.join(container_base_path, out),
+            'ZEALOT_TMP': os.path.join(container_base_path, tmp)
         }
         self.container = self.client.containers.run(
             docker_image,
@@ -53,15 +51,16 @@ class DockerEnv:
     @env.capture
     def run(self, command, _log, container_base_path):
         _log.info(self.container.exec_run(
-            os.path.join(self.exp_path, command), user=str(os.getuid())))
+            os.path.join(container_base_path, command), user=str(os.getuid())))
 
     @env.capture
-    def close(self, tmp):
+    def close(self, out, tmp):
         self.container.stop()
         # TODO allow option to not remove container
         self.container.remove()
         # TODO deduplicate code with env_base
         shutil.rmtree(os.path.join(os.getcwd(), tmp))
+        shutil.rmtree(os.path.join(os.getcwd(), out))
 
-def setup_env_docker(exp_folder):
-    return DockerEnv(exp_folder)
+def setup_env_docker():
+    return DockerEnv()
