@@ -92,6 +92,11 @@ def clone_or_udpdate_git_repo(git_url, git_storage):
 
 if __name__ == '__main__':
 
+    # check for user-scope config file
+    user_config_path = os.path.join(os.path.expanduser('~'), '.zealot.yaml')
+    if (os.path.exists(user_config_path)):
+        zealot.add_config(user_config_path)
+
     args = arg_parser.parse_args(sys.argv)
     conf_updates = arg_parser.get_config_updates(args['UPDATE'])
 
