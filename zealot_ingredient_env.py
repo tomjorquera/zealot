@@ -7,5 +7,6 @@ env = Ingredient('env')
 def env_cfg():
     out = 'out'
     tmp = 'tmp'
+    data = 'data'
     docker_image = None
     container_base_path = '/exp'

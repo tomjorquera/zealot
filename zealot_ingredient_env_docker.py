@@ -13,6 +13,7 @@ class DockerEnv:
                  docker_image,
                  out,
                  tmp,
+                 data,
                  container_base_path):
         # create out and tmp folders
         # TODO deduplicate code with env_base
@@ -33,12 +34,17 @@ class DockerEnv:
             os.path.abspath(out): {
                 'bind': os.path.join(container_base_path, out),
                 'mode': 'rw'
+            },
+            os.path.abspath(data): {
+                'bind': os.path.join(container_base_path, data),
+                'mode': 'ro'
             }
         }
         env = {
             'PWD': container_base_path,
             'ZEALOT_OUT': os.path.join(container_base_path, out),
-            'ZEALOT_TMP': os.path.join(container_base_path, tmp)
+            'ZEALOT_TMP': os.path.join(container_base_path, tmp),
+            'ZEALOT_DATA': os.path.join(container_base_path, data)
         }
         self.container = self.client.containers.run(
             docker_image,

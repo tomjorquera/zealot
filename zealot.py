@@ -6,9 +6,6 @@ from zealot_ingredient_env import env
 from zealot_ingredient_env_basic import setup_env_basic
 from zealot_ingredient_env_docker import setup_env_docker
 
-# TODO allow to make accessible in the env (mount/link/...) a 'data' folder
-#      (read-only if possible)
-
 zealot = Experiment('Zealot', ingredients=[env])
 
 ##
