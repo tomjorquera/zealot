@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import sys, os, shutil, logging, git, re, docker
-from datetime import date
+from datetime import datetime
 from sacred import Experiment, dependencies, arg_parser
 from zealot_ingredient_env import env
 from zealot_ingredient_env_basic import setup_env_basic
@@ -29,6 +29,7 @@ _git_storage = os.path.join(os.path.expanduser('~'), '.zealot_git_storage')
 @zealot.config
 def zealot_config():
     storage_folder = os.path.join(os.path.expanduser('~'), 'Experiments')
+    storage_name_format = '%Y-%m-%d %H:%M:%S'
     log_level = 'INFO'
     git_url = None
     git_storage = _git_storage
@@ -49,7 +50,7 @@ def setup_env(env):
         return setup_env_basic()
 
 @zealot.capture()
-def store_results(env, storage_folder, _seed):
+def store_results(env, storage_folder, storage_name_format, _seed):
     # TODO allow to optionally store artifacts created in tmp
     save_artifacts(zealot, os.path.join(os.getcwd(), env['out']))
 
@@ -57,11 +58,12 @@ def store_results(env, storage_folder, _seed):
     shutil.copytree(os.path.join(os.getcwd(), env['out']),
                     os.path.join(storage_folder,
                                  os.path.basename(os.getcwd()) +
-                                 '_' + str(date.today()) +
+                                 '_' + datetime.now().strftime(storage_name_format) +
                                  '_' + str(_seed)))
 
 def store_raw_source(filename):
-    zealot.sources.add(dependencies.Source(filename, dependencies.get_digest(filename)))
+    zealot.sources.add(dependencies.Source(filename,
+                                           dependencies.get_digest(filename)))
 
 @zealot.main
 def main(env, _log):
@@ -115,7 +117,8 @@ if __name__ == '__main__':
         os.chdir(git_loc)
 
     # add step files as sources
-    for step in [line.rstrip('\n') for line in open(os.path.join(os.getcwd(), 'steps.txt'))]:
+    for step in [line.rstrip('\n') for line in
+                 open(os.path.join(os.getcwd(), 'steps.txt'))]:
         store_raw_source(step)
 
     # check if experiment contains a dockerfile
