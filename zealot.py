@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys, os, shutil, logging, git, re
+import sys, os, shutil, logging, git, re, docker
 from datetime import date
 from sacred import Experiment, dependencies, arg_parser
 from zealot_ingredient_env import env
@@ -117,6 +117,13 @@ if __name__ == '__main__':
     # add step files as sources
     for step in [line.rstrip('\n') for line in open(os.path.join(os.getcwd(), 'steps.txt'))]:
         store_raw_source(step)
+
+    # check if experiment contains a dockerfile
+    # TODO what to do when dockerfile + docker image in parameter?
+    if os.path.exists('Dockerfile'):
+        image_name = 'zealot_' + os.path.basename(os.getcwd())
+        docker.from_env().images.build(path=os.getcwd(), tag=image_name)
+        zealot.add_config(docker_image=image_name)
 
     # run experiment
     zealot.run_commandline()
