@@ -8,17 +8,6 @@ from zealot_ingredient_env_docker import setup_env_docker
 
 # TODO allow to make accessible in the env (mount/link/...) a 'data' folder
 #      (read-only if possible)
-# TODO allow to download the experiment directly from a git repo instead of a
-#      file path
-# TODO rework system to create a 'safe' contained env where the original exp is
-#      duplicated, and force 'out' and 'tmp' to be part of this env
-#      => store all experiments in a 'experiments' folder, generate a new
-#      subfolder for each new experiment
-#      <path>/experiments
-#                  |_ experiment_date_UUID
-#                                  |_ steps
-#                                  |_ out
-#                                  |_ tmp
 
 zealot = Experiment('Zealot', ingredients=[env])
 
