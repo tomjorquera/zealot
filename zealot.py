@@ -43,9 +43,7 @@ def save_artifacts(zealot, base_path):
 
 @zealot.capture()
 def setup_env(env):
-    if env['type'] == 'docker':
-        if env['docker_image'] == None:
-            raise ValueError('you must provide a docker image using the "docker_image" parameter')
+    if env['docker_image'] is not None:
         return setup_env_docker()
     else:
         return setup_env_basic()
@@ -104,7 +102,7 @@ def clone_or_udpdate_git_repo(git_url, git_storage):
         repo.remotes.origin.pull('master')
         return git_loc
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 
     args = arg_parser.parse_args(sys.argv)
     conf_updates = arg_parser.get_config_updates(args['UPDATE'])
