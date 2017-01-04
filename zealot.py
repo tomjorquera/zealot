@@ -15,7 +15,7 @@ _git_storage = os.path.join(os.path.expanduser('~'), '.zealot_git_storage')
 @zealot.config
 def zealot_config():
     storage_folder = os.path.join(os.path.expanduser('~'), 'Experiments')
-    storage_name_format = '%Y-%m-%d %H:%M:%S'
+    storage_name_format = '%Y-%m-%d_%H:%M:%S'
     log_level = 'INFO'
     git_url = None
     git_storage = _git_storage
