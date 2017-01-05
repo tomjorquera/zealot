@@ -89,7 +89,7 @@ if __name__ == '__main__':
         store_raw_source(zealot, step)
 
     # check if experiment contains a dockerfile
-    # TODO what to do when dockerfile + docker image in parameter?
+    # TODO ask what to do when dockerfile + docker image in parameter?
     if os.path.exists('Dockerfile'):
         image_name = 'zealot_' + os.path.basename(os.getcwd())
         docker.from_env().images.build(path=os.getcwd(), tag=image_name)
