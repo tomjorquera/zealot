@@ -1,4 +1,4 @@
-import os, re, sys
+import os, re, sys, git
 from sacred import dependencies, arg_parser
 from sacred.config.config_scope import ConfigScope
 
