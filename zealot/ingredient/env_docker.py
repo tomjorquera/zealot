@@ -1,5 +1,5 @@
 import os, shutil, docker
-from zealot_ingredient_env import env
+from ingredient.env import env
 
 class DockerEnv:
     ## create docker container

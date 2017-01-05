@@ -2,10 +2,10 @@
 import sys, os, shutil, logging, git, re, docker
 from datetime import datetime
 from sacred import Experiment, dependencies, arg_parser
-from zealot_ingredient_env import env
-from zealot_ingredient_env_basic import setup_env_basic
-from zealot_ingredient_env_docker import setup_env_docker
 from sacred.observers import MongoObserver
+from ingredient.env import env
+from ingredient.env_basic import setup_env_basic
+from ingredient.env_docker import  setup_env_docker
 
 zealot = Experiment('Zealot', ingredients=[env])
 
