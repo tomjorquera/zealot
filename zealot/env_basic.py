@@ -1,5 +1,5 @@
 import os, shutil, subprocess
-from ingredient.env import env
+from zealot.env import env
 
 class Env:
     @env.capture

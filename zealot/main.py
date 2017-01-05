@@ -3,10 +3,10 @@ import sys, os, shutil, logging, git, docker
 from datetime import datetime
 from sacred import Experiment, dependencies, arg_parser
 from sacred.observers import MongoObserver
-from ingredient.env import env
-from ingredient.env_basic import setup_env_basic
-from ingredient.env_docker import  setup_env_docker
-from utils import *
+from zealot.env import env
+from zealot.env_basic import setup_env_basic
+from zealot.env_docker import  setup_env_docker
+from zealot.utils import *
 
 zealot = Experiment('Zealot', ingredients=[env])
 
@@ -66,7 +66,7 @@ def main(env, _log, mongo_url, mongo_db_name):
     _log.info('cleaning up')
     running_env.close()
 
-if __name__ == '__main__':
+def zealot_main():
     # get config
     # TODO is there a way to avoid to do this?
     config = generate_config(zealot)
@@ -97,3 +97,6 @@ if __name__ == '__main__':
 
     # run experiment
     zealot.run_commandline()
+
+if __name__ == '__main__':
+    zealot_main()
