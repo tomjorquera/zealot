@@ -17,7 +17,7 @@ _git_storage = os.path.join(os.path.expanduser('~'), '.zealot_git_storage')
 @zealot.config
 def zealot_config():
     storage_folder = os.path.join(os.path.expanduser('~'), 'Experiments')
-    storage_name_format = '%Y-%m-%d_%H:%M:%S'
+    storage_time_format = '%Y-%m-%d_%H:%M:%S'
     log_level = 'INFO'
     git_url = None
     git_storage = _git_storage
@@ -32,7 +32,7 @@ def setup_env(env):
         return setup_env_basic()
 
 @zealot.capture()
-def store_results(env, storage_folder, storage_name_format, _seed):
+def store_results(env, storage_folder, storage_time_format, _seed):
     # TODO allow to optionally store artifacts created in tmp
     save_artifacts(zealot, os.path.join(os.getcwd(), env['out']))
 
@@ -40,7 +40,7 @@ def store_results(env, storage_folder, storage_name_format, _seed):
     shutil.copytree(os.path.join(os.getcwd(), env['out']),
                     os.path.join(storage_folder,
                                  os.path.basename(os.getcwd()) +
-                                 '_' + datetime.now().strftime(storage_name_format) +
+                                 '_' + datetime.now().strftime(storage_time_format) +
                                  '_' + str(_seed)))
 
 @zealot.main
