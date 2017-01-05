@@ -88,7 +88,7 @@ if __name__ == '__main__':
     if os.path.exists('Dockerfile'):
         image_name = 'zealot_' + os.path.basename(os.getcwd())
         docker.from_env().images.build(path=os.getcwd(), tag=image_name)
-        zealot.add_config(docker_image=image_name)
+        env.add_config(docker_image=image_name)
 
     # configure mongo observer if required
     if('mongo_url' in config and config['mongo_url'] is not None):
