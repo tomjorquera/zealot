@@ -1,11 +1,12 @@
 #!/usr/bin/python3
-import sys, os, shutil, logging, git, re, docker
+import sys, os, shutil, logging, git, docker
 from datetime import datetime
 from sacred import Experiment, dependencies, arg_parser
 from sacred.observers import MongoObserver
 from ingredient.env import env
 from ingredient.env_basic import setup_env_basic
 from ingredient.env_docker import  setup_env_docker
+from utils import *
 
 zealot = Experiment('Zealot', ingredients=[env])
 
@@ -22,14 +23,6 @@ def zealot_config():
     git_storage = _git_storage
     mongo_url = None
     mongo_db_name = 'zealot'
-
-def save_artifacts(zealot, base_path):
-    for artifact in os.listdir(base_path):
-        path = os.path.join(base_path, artifact)
-        if os.path.isfile(path):
-            zealot.add_artifact(path)
-        else:
-            save_artifacts(zealot, path)
 
 @zealot.capture()
 def setup_env(env):
@@ -50,10 +43,6 @@ def store_results(env, storage_folder, storage_name_format, _seed):
                                  '_' + datetime.now().strftime(storage_name_format) +
                                  '_' + str(_seed)))
 
-def store_raw_source(filename):
-    zealot.sources.add(dependencies.Source(filename,
-                                           dependencies.get_digest(filename)))
-
 @zealot.main
 def main(env, _log, mongo_url, mongo_db_name):
 
@@ -64,7 +53,7 @@ def main(env, _log, mongo_url, mongo_db_name):
     # TODO allow to optionally store steps as resources
     for step in [line.rstrip('\n') for line in open('steps.txt')]:
         _log.info('running step %s', step)
-        store_raw_source(os.path.abspath(step))
+        store_raw_source(zealot, os.path.abspath(step))
         running_env.run(step)
 
     _log.info('all steps completed')
@@ -76,22 +65,6 @@ def main(env, _log, mongo_url, mongo_db_name):
     # clean up and restore current working dir
     _log.info('cleaning up')
     running_env.close()
-
-def clone_or_udpdate_git_repo(git_url, git_storage):
-        project_name = re.search('.*/(.+?)\.git$', git_url).group(1)
-
-        git_loc = os.path.join(git_storage, project_name)
-
-        # clone repo if required
-        if not os.path.exists(git_loc):
-            git.Repo.clone_from(git_url,
-                                git_loc,
-                                depth=1)
-
-        repo = git.Repo(git_loc)
-        # update repo to latest version
-        repo.remotes.origin.pull('master')
-        return git_loc
 
 if __name__ == '__main__':
 
@@ -113,7 +86,7 @@ if __name__ == '__main__':
     # add step files as sources
     for step in [line.rstrip('\n') for line in
                  open(os.path.join(os.getcwd(), 'steps.txt'))]:
-        store_raw_source(step)
+        store_raw_source(zealot, step)
 
     # check if experiment contains a dockerfile
     # TODO what to do when dockerfile + docker image in parameter?
