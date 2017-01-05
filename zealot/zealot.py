@@ -67,18 +67,13 @@ def main(env, _log, mongo_url, mongo_db_name):
     running_env.close()
 
 if __name__ == '__main__':
+    # get config
+    # TODO is there a way to avoid to do this?
+    config = generate_config(zealot)
 
-    # check for user-scope config file
-    user_config_path = os.path.join(os.path.expanduser('~'), '.zealot.yaml')
-    if (os.path.exists(user_config_path)):
-        zealot.add_config(user_config_path)
-
-    args = arg_parser.parse_args(sys.argv)
-    conf_updates = arg_parser.get_config_updates(args['UPDATE'])
-
-    if('git_url' in conf_updates[0]):
+    if('git_url' in config and config['git_url'] is not None):
         # checkout/update repo, add ref to config, and go into working dir
-        git_url = conf_updates[0]['git_url']
+        git_url = config['git_url']
         git_loc = clone_or_udpdate_git_repo(git_url, _git_storage)
         zealot.add_config(git_rev = str(git.Repo(os.getcwd()).head.commit))
         os.chdir(git_loc)
@@ -95,10 +90,10 @@ if __name__ == '__main__':
         docker.from_env().images.build(path=os.getcwd(), tag=image_name)
         zealot.add_config(docker_image=image_name)
 
-
     # configure mongo observer if required
-    if('mongo_url' in conf_updates[0]):
-        zealot.observers.append(MongoObserver.create(mongo_url, mongo_db_name))
+    if('mongo_url' in config and config['mongo_url'] is not None):
+        zealot.observers.append(
+            MongoObserver.create(config['mongo_url'],config['mongo_db_name']))
 
     # run experiment
     zealot.run_commandline()
