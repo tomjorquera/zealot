@@ -5,6 +5,7 @@ from sacred import Experiment, dependencies, arg_parser
 from zealot_ingredient_env import env
 from zealot_ingredient_env_basic import setup_env_basic
 from zealot_ingredient_env_docker import setup_env_docker
+from sacred.observers import MongoObserver
 
 zealot = Experiment('Zealot', ingredients=[env])
 
@@ -19,6 +20,8 @@ def zealot_config():
     log_level = 'INFO'
     git_url = None
     git_storage = _git_storage
+    mongo_url = None
+    mongo_db_name = 'zealot'
 
 def save_artifacts(zealot, base_path):
     for artifact in os.listdir(base_path):
@@ -52,7 +55,7 @@ def store_raw_source(filename):
                                            dependencies.get_digest(filename)))
 
 @zealot.main
-def main(env, _log):
+def main(env, _log, mongo_url, mongo_db_name):
 
     _log.info('preparing running env')
     running_env = setup_env()
@@ -118,6 +121,11 @@ if __name__ == '__main__':
         image_name = 'zealot_' + os.path.basename(os.getcwd())
         docker.from_env().images.build(path=os.getcwd(), tag=image_name)
         zealot.add_config(docker_image=image_name)
+
+
+    # configure mongo observer if required
+    if('mongo_url' in conf_updates[0]):
+        zealot.observers.append(MongoObserver.create(mongo_url, mongo_db_name))
 
     # run experiment
     zealot.run_commandline()
