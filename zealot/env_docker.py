@@ -17,7 +17,7 @@
 ## You should have received a copy of the GNU Affero General Public License
 ## along with this program. If not, see <http://www.gnu.org/licenses/>.
 ##
-import os, shutil, docker
+import os, shutil, docker, subprocess, re, tempfile
 from zealot.env import env
 
 class DockerEnv:
@@ -30,10 +30,48 @@ class DockerEnv:
     @env.capture
     def __init__(self,
                  docker_image,
+                 docker_machine,
                  out,
                  tmp,
                  data,
                  container_base_path):
+
+        volumes = {}
+        # if docker_machine is set, set corresponding env variables
+        if docker_machine is  None:
+            volumes = {
+                os.path.abspath(os.getcwd()): {
+                    'bind': container_base_path,
+                    'mode': 'ro'
+                },
+                os.path.abspath(tmp): {
+                    'bind': os.path.join(container_base_path, tmp),
+                    'mode': 'rw'
+                },
+                os.path.abspath(out): {
+                    'bind': os.path.join(container_base_path, out),
+                    'mode': 'rw'
+                },
+                os.path.abspath(data): {
+                    'bind': os.path.join(container_base_path, data),
+                    'mode': 'ro'
+                }
+            }
+        else:
+            # set docker machine env variables
+            pattern = re.compile('^export (.*)=\"(.*)\"')
+            with subprocess.Popen(['docker-machine', 'env', docker_machine],
+                                 stdout=subprocess.PIPE) as p:
+                for line in p.stdout:
+                    line = line.decode('utf-8')
+                    if line and not line.startswith('#'):
+                        l = pattern.match(line)
+                        os.environ[l.group(1)] = l.group(2)
+
+            volumes = {
+            # TODO what to do here?
+            }
+
         # create out and tmp folders
         # TODO deduplicate code with env_base
         os.makedirs(out)
@@ -41,24 +79,6 @@ class DockerEnv:
 
         self.client = docker.from_env()
 
-        volumes = {
-            os.path.abspath(os.getcwd()): {
-                'bind': container_base_path,
-                'mode': 'ro'
-            },
-            os.path.abspath(tmp): {
-                'bind': os.path.join(container_base_path, tmp),
-                'mode': 'rw'
-            },
-            os.path.abspath(out): {
-                'bind': os.path.join(container_base_path, out),
-                'mode': 'rw'
-            },
-            os.path.abspath(data): {
-                'bind': os.path.join(container_base_path, data),
-                'mode': 'ro'
-            }
-        }
         env = {
             'PWD': container_base_path,
             'ZEALOT_OUT': os.path.join(container_base_path, out),
