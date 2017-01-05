@@ -75,8 +75,8 @@ def zealot_main():
         # checkout/update repo, add ref to config, and go into working dir
         git_url = config['git_url']
         git_loc = clone_or_udpdate_git_repo(git_url, _git_storage)
-        zealot.add_config(git_rev = str(git.Repo(os.getcwd()).head.commit))
         os.chdir(git_loc)
+        zealot.add_config(git_rev = str(git.Repo(os.getcwd()).head.commit))
 
     # add step files as sources
     for step in [line.rstrip('\n') for line in
