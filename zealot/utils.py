@@ -1,5 +1,6 @@
 import os, re, sys, git
 from sacred import dependencies, arg_parser
+from sacred.config.utils import assert_is_valid_key
 from sacred.config.config_scope import ConfigScope
 
 def clone_or_udpdate_git_repo(git_url, git_storage):
@@ -18,7 +19,7 @@ def clone_or_udpdate_git_repo(git_url, git_storage):
         repo.remotes.origin.pull('master')
         return git_loc
 
-def generate_config(zealot):
+def generate_config(zealot, env):
     # check for user-scope config file
     user_config_path = os.path.join(os.path.expanduser('~'), '.zealot.yaml')
     if (os.path.exists(user_config_path)):
@@ -27,6 +28,18 @@ def generate_config(zealot):
     # check for command-line config
     args = arg_parser.parse_args(sys.argv)
     conf_updates = arg_parser.get_config_updates(args['UPDATE'])
+
+    # capture env variables
+    sys_vars = {}
+    for k, v in os.environ.items():
+            try:
+                    assert_is_valid_key(k)
+                    sys_vars[k] = v
+            except KeyError:
+                    pass
+
+    # need to be a valid identifier
+    env.add_config({'sys_variables': sys_vars})
 
     # create dict
     config = {}

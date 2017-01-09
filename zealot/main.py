@@ -69,7 +69,7 @@ def main(env, _log, mongo_url, mongo_db_name):
 def zealot_main():
     # get config
     # TODO is there a way to avoid to do this?
-    config = generate_config(zealot)
+    config = generate_config(zealot, env)
 
     if('git_url' in config and config['git_url'] is not None):
         # checkout/update repo, add ref to config, and go into working dir
