@@ -16,6 +16,7 @@ setup(
     install_requires = [
         'sacred',
         'gitpython',
-        'docker'
+        'pymongo',
+        'docker',
     ],
 )
