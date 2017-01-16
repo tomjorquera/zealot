@@ -23,6 +23,7 @@ def zealot_config():
     git_storage = _git_storage
     mongo_url = None
     mongo_db_name = 'zealot'
+    exp_args = ''
 
 @zealot.capture()
 def setup_env(env):
@@ -44,7 +45,7 @@ def store_results(env, storage_folder, storage_time_format, _seed):
                                  '_' + str(_seed)))
 
 @zealot.main
-def main(env, _log, mongo_url, mongo_db_name):
+def main(env, exp_args, _log, mongo_url, mongo_db_name):
 
     _log.info('preparing running env')
     running_env = setup_env()
@@ -54,7 +55,7 @@ def main(env, _log, mongo_url, mongo_db_name):
     for step in [line.rstrip('\n') for line in open('steps.txt')]:
         _log.info('running step %s', step)
         store_raw_source(zealot, os.path.abspath(step))
-        running_env.run(step)
+        running_env.run(step, exp_args)
 
     _log.info('all steps completed')
 

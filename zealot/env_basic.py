@@ -14,9 +14,10 @@ class Env:
         self.env_vars['ZEALOT_TMP'] = tmp
         self.env_vars['ZEALOT_DATA'] = data
 
-    def run(self, command):
+    def run(self, command, args):
         # run the shell command with env variables
-        subprocess.run([os.path.join(os.getcwd(), command)], env=self.env_vars)
+        subprocess.run([os.path.join(os.getcwd(), command)] + args.split(),
+                       env=self.env_vars)
 
     @env.capture
     def close(self, out, tmp):
