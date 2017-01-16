@@ -16,8 +16,17 @@ class Env:
 
     def run(self, command, args):
         # run the shell command with env variables
-        subprocess.run([os.path.join(os.getcwd(), command)] + args.split(),
-                       env=self.env_vars)
+        process = subprocess.Popen(
+            [os.path.join(os.getcwd(), command)] + args.split(),
+            env=self.env_vars,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True)
+
+        for stdout_line in iter(process.stdout.readline, ""):
+            print(stdout_line, end='')
+
+        process.stdout.close()
 
     @env.capture
     def close(self, out, tmp):

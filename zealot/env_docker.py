@@ -56,7 +56,7 @@ class DockerEnv:
 
     @env.capture
     def run(self, command, args, _log, container_base_path):
-        _log.info(self.container.exec_run(
+        print(self.container.exec_run(
             os.path.join(container_base_path, command)  + ' ' + args,
             user=str(os.getuid())))
 
