@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     name='zealot',
     version='0.0.1',
-    author='Tom Jorquera',
+    author='Linagora',
     author_email='tjorquera@linagora.com',
     packages = find_packages(),
     classifiers=[
